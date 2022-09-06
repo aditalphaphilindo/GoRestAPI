@@ -39,7 +39,7 @@ func GetOneByEmail(email string) (Users, error) {
 
 func GetAll(keywords string) ([]Users, error) {
 	var users []Users
-	result := config.DB.Where("email LIKE ? OR nama LIKE ?", "%"+keywords+"%", "%"+keywords+"%").Find(&users)
+	result := config.DB.Find(&users)
 
 	return users, result.Error
 }
