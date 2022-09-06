@@ -1,16 +1,22 @@
 package model
 
-import "FreshGo/config"
+import (
+	"FreshGo/config"
+	"fmt"
+)
 
 type Users struct {
-	Email       string `json:"email" form:"email" gorm:"primaryKey"`
-	Nama        string `json:"nama" form:"nama"`
-	NoHandphone string `json:"no_handphone" form:"no_handphone"`
+	Id          int
+	Username    string `json:"username" form:"username" gorm:"primaryKey"`
+	Password    string `json:"password" form:"password"`
+	Email       string `json:"email" form:"email"`
+	NamaLengkap string `json:"nama" form:"nama"`
 	Alamat      string `json:"alamat" form:"alamat"`
-	Ktp         string `json:"ktp" form:"ktp"`
+	Tipe        string `json:"tipe" form:"tipe"`
 }
 
 func (user *Users) CreateUser() error {
+	fmt.Println(user.Password)
 	if err := config.DB.Create(user).Error; err != nil {
 		return err
 	}
@@ -40,6 +46,5 @@ func GetOneByEmail(email string) (Users, error) {
 func GetAll(keywords string) ([]Users, error) {
 	var users []Users
 	result := config.DB.Find(&users)
-
 	return users, result.Error
 }

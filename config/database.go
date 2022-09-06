@@ -10,7 +10,7 @@ var DB *gorm.DB
 func ConnectDB() {
 	host := "localhost"
 	port := "3306"
-	dbname := "dbs_wallet_test"
+	dbname := "dbs_freshgo"
 	username := "root"
 	password := ""
 
