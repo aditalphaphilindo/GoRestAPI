@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -21,6 +20,10 @@ func main() {
 	route.POST("user/create", CreateUserData)
 	route.PUT("user/update/:email", UpdateUserData)
 	route.DELETE("user/delete/:email", DeleteUserData)
+
+	// auth route
+	route.POST("/auth/login/process", AuthLoginProcess)
+
 	route.Start(":9000")
 }
 
@@ -29,11 +32,19 @@ func HomePage(c echo.Context) error {
 	return c.HTML(http.StatusOK, data)
 }
 
+func AuthLoginProcess(c echo.Context) error {
+	user := new(model.Users)
+	c.Bind(user)
+	response := new(Response)
+
+	return c.JSON(http.StatusOK, response)
+}
+
 func UpdateUserData(c echo.Context) error {
 	user := new(model.Users)
 	c.Bind(user)
 	response := new(Response)
-	if user.UpdateUser(c.Param("email")) != nil { // method update user
+	if user.UpdateUser(c.Param("email")) != nil {
 		response.ErrorCode = 10
 		response.Message = "Gagal update data user"
 	} else {
@@ -45,10 +56,10 @@ func UpdateUserData(c echo.Context) error {
 }
 
 func DeleteUserData(c echo.Context) error {
-	user, _ := model.GetOneByEmail(c.Param("email")) // method get by email
+	user, _ := model.GetOneByEmail(c.Param("email"))
 	response := new(Response)
 
-	if user.DeleteUser() != nil { // method update user
+	if user.DeleteUser() != nil {
 		response.ErrorCode = 10
 		response.Message = "Gagal menghapus data user"
 	} else {
@@ -59,12 +70,6 @@ func DeleteUserData(c echo.Context) error {
 }
 
 func CreateUserData(c echo.Context) error {
-	// test untuk crypt
-	// var password string = "secret"
-	// hash, _ := HashPassword(password)
-
-	// fmt.Println(hash)
-
 	user := new(model.Users)
 	c.Bind(user)
 	contentType := c.Request().Header.Get("Content-type")
@@ -72,7 +77,7 @@ func CreateUserData(c echo.Context) error {
 		// fmt.Println("Request dari json")
 	}
 	response := new(Response)
-	if user.CreateUser() != nil { // method create user
+	if user.CreateUser() != nil {
 		response.ErrorCode = 10
 		response.Message = "Gagal create data user"
 	} else {
@@ -86,7 +91,7 @@ func CreateUserData(c echo.Context) error {
 func GetUserData(c echo.Context) error {
 	response := new(Response)
 
-	users, err := model.GetAll(c.QueryParam("keywords")) // method get all
+	users, err := model.GetAll(c.QueryParam("keywords"))
 	if err != nil {
 		response.ErrorCode = 10
 		response.Message = "Gagal load data user"
@@ -97,11 +102,6 @@ func GetUserData(c echo.Context) error {
 	}
 	fmt.Println(response)
 	return c.JSON(http.StatusOK, response)
-}
-
-func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
 }
 
 type Response struct {
